@@ -1,0 +1,40 @@
+.train-scene {
+  display: block;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+@keyframes smokeRise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-40px) scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes waggleNormal {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-1.5px); }
+}
+
+@keyframes waggleFast {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-1.5px); }
+}
+
+.wagon-wobble-slow .wagon {
+  animation: waggleNormal 0.9s ease-in-out infinite;
+}
+
+.wagon-wobble-fast .wagon {
+  animation: waggleFast 0.28s ease-in-out infinite;
+}
