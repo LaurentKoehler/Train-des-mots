@@ -1,3 +1,9 @@
-/* Reset minimal — les styles du jeu sont dans App.css et Game.css */
+/*
+ * index.css — Reset CSS global minimal.
+ *
+ * Chargé avant tout le reste dans main.jsx.
+ * On se contente d'annuler les marges par défaut du navigateur.
+ * Tous les vrais styles du jeu sont dans src/styles/.
+ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { margin: 0; }

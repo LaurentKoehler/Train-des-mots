@@ -1,21 +1,30 @@
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/*
+ * styles/App.css — Mise en page globale de l'application.
+ *
+ * Layout 3 colonnes via CSS Grid :
+ *
+ *   [sidebar gauche 260px] [zone de jeu flexible] [sidebar droite 260px]
+ *
+ * Les sidebars affichent les mots possibles à gauche (courts) et à droite (longs).
+ * La zone centrale contient le train, les lettres et le champ de saisie.
+ *
+ * Les sidebars sont `position: sticky` : même si la page défile un peu,
+ * les carrés de mots restent visibles à l'écran.
+ */
+
+/* Reset intégré ici pour éviter d'avoir deux fichiers de reset */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  background: #1a1a2e;
-  color: #f0e6d3;
-  min-width: 900px;
+  background: #1a1a2e;   /* fond anthracite foncé */
+  color: #f0e6d3;        /* texte blanc cassé */
+  min-width: 900px;      /* pas de responsive mobile requis */
 }
 
-#root {
-  min-height: 100vh;
-}
+#root { min-height: 100vh; }
 
-/* ---- Layout 3 colonnes ---- */
+/* ── Layout 3 colonnes ──────────────────────────────────────────────────────── */
 .page-layout {
   display: grid;
   grid-template-columns: 260px 1fr 260px;
@@ -23,10 +32,10 @@ body {
   gap: 16px;
   padding: 16px;
   min-height: 100vh;
-  align-items: start;
+  align-items: start;   /* chaque colonne commence en haut */
 }
 
-/* Zone centrale : jeu */
+/* Zone centrale : tout le jeu */
 .game-center {
   grid-area: center;
   display: flex;
@@ -34,20 +43,19 @@ body {
   gap: 12px;
 }
 
-/* Sidebars */
+/* Sidebars gauche et droite */
 .sidebar {
   display: flex;
   flex-direction: column;
   gap: 6px;
   padding-top: 8px;
-  /* Colle les cases en haut pendant que le centre défile */
-  position: sticky;
+  position: sticky;  /* reste visible quand la page défile */
   top: 16px;
 }
-
-.sidebar--left  { grid-area: left;  align-items: flex-end; }
+.sidebar--left  { grid-area: left;  align-items: flex-end;   }
 .sidebar--right { grid-area: right; align-items: flex-start; }
 
+/* Titre des sidebars */
 .sidebar-label {
   font-size: 0.6rem;
   text-transform: uppercase;
@@ -59,35 +67,31 @@ body {
   text-align: center;
 }
 
-/* ---- En-tête ---- */
-.app-header {
-  text-align: center;
-  padding-bottom: 4px;
-}
+/* ── En-tête ──────────────────────────────────────────────────────────────── */
+.app-header { text-align: center; padding-bottom: 4px; }
 
 .app-header h1 {
   font-size: 1.8rem;
-  color: #e8b84b;
+  color: #e8b84b;           /* dorée */
   letter-spacing: 0.06em;
   text-shadow: 0 2px 8px rgba(232, 184, 75, 0.35);
 }
-
 .app-header p {
   font-size: 0.82rem;
   color: #888;
   margin-top: 2px;
 }
 
-/* ---- Section train ---- */
+/* ── Section train (bordure autour du SVG) ─────────────────────────────────── */
 .train-section {
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid #2a2a4e;
 }
 
-/* ---- Section jeu (lettres + input) ---- */
+/* ── Section lettres + saisie ─────────────────────────────────────────────── */
 .game-section {
-  background: #12122088;
+  background: #12122088;    /* fond semi-transparent */
   border: 1px solid #2a2a4e;
   border-radius: 10px;
   padding: 14px;
@@ -96,7 +100,16 @@ body {
   gap: 10px;
 }
 
-/* ---- Chargement ---- */
+/* Petits labels de section */
+.section-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #555;
+  text-align: center;
+}
+
+/* ── Écran de chargement ──────────────────────────────────────────────────── */
 .loading-screen {
   display: flex;
   flex-direction: column;
@@ -108,23 +121,13 @@ body {
   font-size: 1.2rem;
 }
 
+/* Spinner rotatif */
 .loading-spinner {
   width: 40px;
   height: 40px;
   border: 4px solid #2a2a4e;
   border-top-color: #e8b84b;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  animation: spin-loader 0.8s linear infinite;
 }
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.section-label {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: #555;
-  text-align: center;
-}
+@keyframes spin-loader { to { transform: rotate(360deg); } }

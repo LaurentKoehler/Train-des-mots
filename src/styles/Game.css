@@ -1,4 +1,21 @@
-/* ---- Tuiles de lettres ---- */
+/*
+ * styles/Game.css — Styles des composants de jeu.
+ *
+ * Contenu :
+ *   1. Tuiles de lettres (LetterTiles)
+ *   2. Champ de saisie (WordInput)
+ *   3. Grille de mots dans les sidebars (WordGrid)
+ *   4. HUD (timer, score, combo)
+ *   5. Bouton Go
+ *   6. Barre de progression
+ *   7. Écran de fin (EndScreen)
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   1. TUILES DE LETTRES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Rangée de 8 tuiles centrée */
 .letter-tiles {
   display: flex;
   justify-content: center;
@@ -6,6 +23,7 @@
   padding: 12px 0;
 }
 
+/* Une tuile individuelle, style Scrabble */
 .tile {
   position: relative;
   width: 56px;
@@ -15,11 +33,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Ombre portée + relief intérieur en bas pour l'effet "pièce" */
   box-shadow: 0 3px 6px rgba(0,0,0,0.4), inset 0 -2px 0 rgba(0,0,0,0.2);
   cursor: default;
   user-select: none;
 }
 
+/* Grande lettre centrale */
 .tile-letter {
   font-size: 2rem;
   font-weight: bold;
@@ -27,6 +47,7 @@
   line-height: 1;
 }
 
+/* Petite valeur Scrabble en bas à droite */
 .tile-value {
   position: absolute;
   bottom: 4px;
@@ -36,15 +57,20 @@
   color: #555;
 }
 
-/* ---- Saisie du mot ---- */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   2. CHAMP DE SAISIE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 .word-input-container {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 10px;
-  padding: 8px 0;
+  padding: 4px 0;
 }
 
+/* Champ texte */
 .word-input {
   width: 280px;
   padding: 10px 14px;
@@ -57,32 +83,33 @@
   transition: border-color 0.15s;
   font-family: inherit;
 }
+.word-input:focus               { border-color: #e8b84b; }
 
-.word-input:focus {
-  border-color: #e8b84b;
-}
-
+/* Variante succès : flash vert */
 .word-input--success {
   border-color: #27ae60 !important;
   box-shadow: 0 0 8px rgba(39, 174, 96, 0.5);
 }
 
+/* Variante erreur : rouge + shake */
 .word-input--error {
   border-color: #e74c3c !important;
   box-shadow: 0 0 8px rgba(231, 76, 60, 0.4);
   animation: shake 0.4s ease;
 }
 
+/* Animation shake (rebond horizontal rapide) */
 @keyframes shake {
-  0%   { transform: translateX(0); }
+  0%   { transform: translateX(0);    }
   15%  { transform: translateX(-6px); }
-  35%  { transform: translateX(6px); }
+  35%  { transform: translateX(6px);  }
   55%  { transform: translateX(-5px); }
-  75%  { transform: translateX(4px); }
+  75%  { transform: translateX(4px);  }
   90%  { transform: translateX(-2px); }
-  100% { transform: translateX(0); }
+  100% { transform: translateX(0);    }
 }
 
+/* Bouton Valider */
 .validate-btn {
   padding: 10px 22px;
   font-size: 1rem;
@@ -95,22 +122,16 @@
   cursor: pointer;
   transition: background 0.15s, transform 0.1s;
 }
+.validate-btn:hover:not(:disabled) { background: #f0cc70; transform: translateY(-1px); }
+.validate-btn:active:not(:disabled){ transform: translateY(0); }
+.validate-btn:disabled             { opacity: 0.4; cursor: not-allowed; }
 
-.validate-btn:hover:not(:disabled) {
-  background: #f0cc70;
-  transform: translateY(-1px);
-}
 
-.validate-btn:active:not(:disabled) {
-  transform: translateY(0);
-}
+/* ═══════════════════════════════════════════════════════════════════════════
+   3. GRILLE DE MOTS (sidebars)
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-.validate-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* ---- Grille de mots (dans les sidebars) ---- */
+/* Message affiché le temps du calcul */
 .wg-empty {
   font-size: 0.75rem;
   color: #555;
@@ -118,7 +139,7 @@
   padding: 8px 0;
 }
 
-/* Colonne de groupes pour une sidebar */
+/* Colonne de groupes dans une sidebar */
 .wg-column {
   display: flex;
   flex-direction: column;
@@ -126,13 +147,14 @@
   width: 100%;
 }
 
-/* Un groupe = une longueur de mot */
+/* Un groupe = une longueur de mot (ex: "3 lettres") */
 .wg-group {
   display: flex;
   align-items: flex-start;
   gap: 6px;
 }
 
+/* Label de longueur (ex: "3L") + compteur "2/7" en dessous */
 .wg-len-label {
   font-size: 0.58rem;
   color: #666;
@@ -146,34 +168,32 @@
   gap: 1px;
   padding-top: 3px;
 }
-
-/* Compteur trouvés/total par longueur */
 .wg-count {
   font-size: 0.5rem;
   color: #444;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums;  /* chiffres à largeur fixe pour éviter le saut */
   text-transform: none;
   letter-spacing: 0;
 }
 
-/* Ligne de mots de même longueur */
+/* Ligne de mots de même longueur (peut passer à la ligne si nombreux) */
 .wg-row {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
 }
 
-/* Un mot = ses carrés côte à côte */
+/* Un mot = ses N carrés côte à côte */
 .wg-word {
   display: flex;
   gap: 1px;
 }
 
-/* Carré pour une lettre */
+/* Carré individuel pour une lettre */
 .wg-sq {
   width: 20px;
   height: 20px;
-  border: 1.5px dashed #444;
+  border: 1.5px dashed #444;      /* pointillés = pas encore trouvé */
   border-radius: 3px;
   background: #2a2a3e;
   display: flex;
@@ -185,19 +205,25 @@
   transition: background 0.25s, border-color 0.25s;
 }
 
+/* Carré rempli quand le mot est trouvé */
 .wg-sq--found {
   border: 1.5px solid #27ae60;
   background: #1a2e1e;
-  animation: letterReveal 0.35s ease;
+  animation: letterReveal 0.35s ease;  /* petite animation d'apparition */
 }
 
+/* Animation d'apparition des lettres */
 @keyframes letterReveal {
   0%   { transform: scale(0.4); opacity: 0; }
-  60%  { transform: scale(1.15); }
-  100% { transform: scale(1); opacity: 1; }
+  60%  { transform: scale(1.15);            }
+  100% { transform: scale(1);   opacity: 1; }
 }
 
-/* ---- HUD ---- */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4. HUD (timer, score, combo)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 .hud {
   display: flex;
   justify-content: center;
@@ -212,144 +238,35 @@
   letter-spacing: 0.03em;
 }
 
-.hud-timer {
-  color: #f0e6d3;
-  min-width: 70px;
-  text-align: center;
-}
+/* Timer en blanc cassé par défaut */
+.hud-timer { color: #f0e6d3; min-width: 70px; text-align: center; }
 
+/* Timer en rouge + clignotant quand ≤ 20s */
 .hud-timer--danger {
   color: #e74c3c;
   animation: pulseRed 0.8s ease-in-out infinite;
 }
-
-@keyframes pulseRed {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.6; }
-}
+@keyframes pulseRed { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
 .hud-score {
-  color: #e8b84b;
+  color: #e8b84b;        /* doré */
   min-width: 120px;
   text-align: center;
 }
 
 .hud-combo {
-  color: #27ae60;
+  color: #27ae60;        /* vert */
   min-width: 80px;
   text-align: center;
   animation: comboFlash 0.3s ease;
 }
+@keyframes comboFlash { 0% { transform: scale(1.3); } 100% { transform: scale(1); } }
 
-@keyframes comboFlash {
-  0%   { transform: scale(1.3); }
-  100% { transform: scale(1); }
-}
 
-/* ---- End Screen ---- */
-.end-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-}
+/* ═══════════════════════════════════════════════════════════════════════════
+   5. BOUTON GO
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-.end-panel {
-  background: #1a1a2e;
-  border: 2px solid #e8b84b;
-  border-radius: 12px;
-  padding: 36px 48px;
-  min-width: 480px;
-  max-width: 620px;
-  max-height: 80vh;
-  overflow-y: auto;
-  text-align: center;
-  color: #f0e6d3;
-}
-
-.end-title--victory {
-  font-size: 2.2rem;
-  color: #27ae60;
-  margin-bottom: 16px;
-}
-
-.end-title--defeat {
-  font-size: 2.2rem;
-  color: #e74c3c;
-  margin-bottom: 16px;
-}
-
-.end-score-detail {
-  margin: 12px 0;
-  font-size: 1rem;
-  line-height: 1.8;
-}
-
-.end-total {
-  font-size: 1.3rem;
-  color: #e8b84b;
-  margin-top: 8px;
-}
-
-.end-words {
-  text-align: left;
-  margin: 16px 0;
-}
-
-.end-words h3 {
-  color: #e8b84b;
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 8px;
-}
-
-.end-words ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px;
-}
-
-.end-words li {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-  padding: 3px 6px;
-  background: #2a2a3e;
-  border-radius: 4px;
-}
-
-.end-word-detail {
-  color: #888;
-  font-size: 0.75rem;
-}
-
-.replay-btn {
-  margin-top: 24px;
-  padding: 12px 32px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  font-family: inherit;
-  background: #e8b84b;
-  color: #1a1a2e;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-}
-
-.replay-btn:hover {
-  background: #f0cc70;
-  transform: translateY(-2px);
-}
-
-/* ---- Bouton Go ---- */
 .go-btn {
   display: block;
   margin: 12px auto;
@@ -366,38 +283,108 @@
   box-shadow: 0 4px 14px rgba(232, 184, 75, 0.35);
   transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
 }
+.go-btn:hover  { background: #f0cc70; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(232,184,75,0.5); }
+.go-btn:active { transform: translateY(0); }
 
-.go-btn:hover {
-  background: #f0cc70;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(232, 184, 75, 0.5);
-}
 
-.go-btn:active {
-  transform: translateY(0);
-}
+/* ═══════════════════════════════════════════════════════════════════════════
+   6. BARRE DE PROGRESSION
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Cases remplies pour les mots bonus (hors cibles) */
-.wg-sq--bonus {
-  border: 1.5px solid #e8b84b;
-  background: #2a2518;
-  color: #e8b84b;
-  animation: letterReveal 0.35s ease;
-}
-
-/* ---- Barre de progression ---- */
+/* Fond gris foncé pleine largeur */
 .progress-bar-wrapper {
   width: 100%;
   height: 10px;
   background: #2a2a3e;
   border-radius: 5px;
   overflow: hidden;
-  margin: 6px 0;
+  margin: 4px 0;
 }
 
+/* Remplissage doré, largeur pilotée par le style inline dans App.jsx */
 .progress-bar-fill {
   height: 100%;
   background: linear-gradient(90deg, #e8b84b, #f0cc70);
   border-radius: 5px;
   transition: width 0.1s linear;
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   7. ÉCRAN DE FIN
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Overlay plein écran semi-transparent */
+.end-overlay {
+  position: fixed;
+  inset: 0;                          /* top:0 right:0 bottom:0 left:0 */
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;                      /* par-dessus tout le reste */
+}
+
+/* Panneau centré */
+.end-panel {
+  background: #1a1a2e;
+  border: 2px solid #e8b84b;
+  border-radius: 12px;
+  padding: 36px 48px;
+  min-width: 480px;
+  max-width: 620px;
+  max-height: 80vh;
+  overflow-y: auto;
+  text-align: center;
+  color: #f0e6d3;
+}
+
+/* Titres victoire / défaite */
+.end-title--victory { font-size: 2.2rem; color: #27ae60; margin-bottom: 16px; }
+.end-title--defeat  { font-size: 2.2rem; color: #e74c3c; margin-bottom: 16px; }
+
+/* Détail du score */
+.end-score-detail { margin: 12px 0; font-size: 1rem; line-height: 1.8; }
+.end-total { font-size: 1.3rem; color: #e8b84b; margin-top: 8px; }
+
+/* Liste des mots trouvés */
+.end-words { text-align: left; margin: 16px 0; }
+.end-words h3 {
+  color: #e8b84b;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+.end-words ul {
+  list-style: none;
+  padding: 0; margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+.end-words li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  padding: 3px 6px;
+  background: #2a2a3e;
+  border-radius: 4px;
+}
+.end-word-detail { color: #888; font-size: 0.75rem; }
+
+/* Bouton Rejouer */
+.replay-btn {
+  margin-top: 24px;
+  padding: 12px 32px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  font-family: inherit;
+  background: #e8b84b;
+  color: #1a1a2e;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.replay-btn:hover { background: #f0cc70; transform: translateY(-2px); }

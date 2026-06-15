@@ -1,3 +1,11 @@
+/*
+ * styles/TrainScene.css — Animations du train SVG.
+ *
+ * Ce fichier ne contient que des @keyframes et des classes d'animation.
+ * Toutes les couleurs et dimensions du SVG sont dans le composant TrainScene.jsx.
+ */
+
+/* ── Conteneur SVG ─────────────────────────────────────────────────────────── */
 .train-scene {
   display: block;
   width: 100%;
@@ -5,36 +13,50 @@
   overflow: hidden;
 }
 
+/* ── Fumée ─────────────────────────────────────────────────────────────────── */
+/*
+ * Les cercles de fumée montent et s'estompent en boucle.
+ * La propriété CSS custom `--smoke-duration` est injectée par le composant
+ * selon la vitesse du train (rapide → fumée rapide, lent → fumée paresseuse).
+ */
 @keyframes smokeRise {
-  0% {
-    transform: translateY(0) scale(1);
-    opacity: 0.6;
-  }
-  100% {
-    transform: translateY(-40px) scale(2.5);
-    opacity: 0;
-  }
+  0%   { transform: translateY(0)     scale(1);   opacity: 0.6; }
+  100% { transform: translateY(-40px) scale(2.5); opacity: 0;   }
 }
 
+/* ── Rotation des rayons de roue ───────────────────────────────────────────── */
+/*
+ * `spin` est appliqué aux lignes (rayons), pas aux cercles.
+ * Un cercle qui tourne est invisible : pas besoin de l'animer.
+ * Le `transform-origin` est défini inline dans le JSX (coordonnées SVG du centre).
+ */
 @keyframes spin {
-  from { transform: rotate(0deg); }
+  from { transform: rotate(0deg);   }
   to   { transform: rotate(360deg); }
 }
 
+/* ── Balancement des wagons ────────────────────────────────────────────────── */
+/*
+ * Les wagons oscillent légèrement pour donner vie au train.
+ * La classe est appliquée au groupe INTERNE (.wagon) à l'intérieur du groupe
+ * de positionnement SVG. C'est essentiel : si on animait directement l'élément
+ * avec le transform="translate(…)" SVG, l'animation CSS l'écraserait et
+ * propulserait les wagons en haut de l'écran.
+ */
 @keyframes waggleNormal {
-  0%, 100% { transform: translateY(0); }
+  0%, 100% { transform: translateY(0);     }
   50%       { transform: translateY(-1.5px); }
 }
-
 @keyframes waggleFast {
-  0%, 100% { transform: translateY(0); }
+  0%, 100% { transform: translateY(0);     }
   50%       { transform: translateY(-1.5px); }
 }
 
+/* Vitesse lente (train ralenti) */
 .wagon-wobble-slow .wagon {
   animation: waggleNormal 0.9s ease-in-out infinite;
 }
-
+/* Vitesse rapide (train lancé) */
 .wagon-wobble-fast .wagon {
   animation: waggleFast 0.28s ease-in-out infinite;
 }

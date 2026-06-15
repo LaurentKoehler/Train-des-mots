@@ -1,61 +1,73 @@
+/**
+ * components/WordInput.jsx — Champ de saisie du mot + bouton "Valider".
+ *
+ * Comportement :
+ *   - Appui sur Entrée OU clic sur "Valider" → soumet le mot
+ *   - Succès : flash vert sur la bordure pendant 600 ms, puis le champ se vide
+ *   - Échec  : animation shake + bordure rouge pendant 800 ms, puis le champ se vide
+ *   - Le champ retrouve le focus automatiquement après chaque soumission
+ *   - Désactivé pendant les états 'waiting', 'victory', 'defeat'
+ *
+ * La prop `onSubmit` renvoie true (mot accepté) ou false (rejeté).
+ */
 import { useState, useRef, useEffect } from 'react';
 
+/**
+ * @param {Function} onSubmit  - Callback qui reçoit la saisie et retourne boolean
+ * @param {boolean}  disabled  - true = champ verrouillé (hors phase de jeu)
+ */
 export default function WordInput({ onSubmit, disabled }) {
-  const [value, setValue] = useState('');
-  const [status, setStatus] = useState(null); // null | 'success' | 'error'
+  const [valeur, setValeur]   = useState('');
+  const [statut, setStatut]   = useState(null);  // null | 'success' | 'error'
   const inputRef = useRef(null);
 
-  // Focus au montage et après chaque soumission
+  // Focus automatique au montage et quand le champ se déverrouille
   useEffect(() => {
-    if (!disabled) {
-      inputRef.current?.focus();
-    }
+    if (!disabled) inputRef.current?.focus();
   }, [disabled]);
 
-  const handleSubmit = () => {
-    if (!value.trim() || disabled) return;
+  function soumettre() {
+    if (!valeur.trim() || disabled) return;
 
-    const valid = onSubmit(value);
+    const accepte = onSubmit(valeur);
 
-    if (valid) {
-      setStatus('success');
+    if (accepte) {
+      // Feedback positif : flash vert
+      setStatut('success');
       setTimeout(() => {
-        setStatus(null);
+        setStatut(null);
         inputRef.current?.focus();
       }, 600);
     } else {
-      setStatus('error');
+      // Feedback négatif : shake rouge
+      setStatut('error');
       setTimeout(() => {
-        setStatus(null);
+        setStatut(null);
         inputRef.current?.focus();
       }, 800);
     }
 
-    setValue('');
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') handleSubmit();
-  };
+    setValeur(''); // vide le champ immédiatement dans tous les cas
+  }
 
   return (
     <div className="word-input-container">
       <input
         ref={inputRef}
         type="text"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        className={`word-input${status ? ` word-input--${status}` : ''}`}
+        value={valeur}
+        onChange={e => setValeur(e.target.value)}
+        onKeyDown={e => e.key === 'Enter' && soumettre()}
+        className={`word-input${statut ? ` word-input--${statut}` : ''}`}
         placeholder="Tape un mot…"
         disabled={disabled}
         autoComplete="off"
         spellCheck="false"
       />
       <button
-        onClick={handleSubmit}
+        onClick={soumettre}
         className="validate-btn"
-        disabled={disabled || !value.trim()}
+        disabled={disabled || !valeur.trim()}
       >
         Valider
       </button>
