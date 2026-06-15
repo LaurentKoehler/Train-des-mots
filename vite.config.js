@@ -3,5 +3,5 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/train-des-mots/',
+  base: '/Train-des-mots/',
 })
