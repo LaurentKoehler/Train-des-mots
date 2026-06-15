@@ -23,6 +23,22 @@ function computeScore(scoreItems, timeLeft, victory) {
   return wordScore + timeBonus;
 }
 
+/**
+ * requiredWords : nombre de mots à trouver pour remplir le train (max 15).
+ * Sert à l'impulse scaling du useGameLoop.
+ */
+function computeRequiredWords(words) {
+  return Math.max(3, Math.min(words.length, 15));
+}
+
+/**
+ * winThreshold : nb de mots trouvés qui déclenche la victoire par %.
+ * 75 % des mots disponibles, plafonné à 15 (atteignable en 90 s).
+ */
+function computeWinThreshold(words) {
+  return Math.min(15, Math.max(3, Math.ceil(words.length * 0.75)));
+}
+
 export default function App() {
   const { isLoading, dictionary } = useDictionary();
 
@@ -32,6 +48,8 @@ export default function App() {
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
 
   const [targetWords, setTargetWords] = useState([]);
+  const [requiredWords, setRequiredWords] = useState(15);
+  const [winThreshold, setWinThreshold]   = useState(15);
   // foundWords : Set de TOUS les mots trouvés (cibles + bonus)
   const [foundWords, setFoundWords] = useState(new Set());
 
@@ -45,8 +63,18 @@ export default function App() {
     if (isLoading) return;
     const targets = findAllWords(letters, dictionary);
     setTargetWords(targets);
+    setRequiredWords(computeRequiredWords(targets));
+    setWinThreshold(computeWinThreshold(targets));
     setFoundWords(new Set());
   }, [letters, dictionary, isLoading]);
+
+  // Victoire par pourcentage : trouver winThreshold mots suffit
+  useEffect(() => {
+    if (gameState !== 'playing' || targetWords.length === 0) return;
+    if (foundWords.size >= winThreshold) {
+      setGameState('victory');
+    }
+  }, [foundWords, winThreshold, targetWords.length, gameState]);
 
   const handleVictory = useCallback(() => {
     if (gameStateRef.current !== 'playing') return;
@@ -67,6 +95,7 @@ export default function App() {
     letters,
     dictionary,
     gameState,
+    requiredWords,
     onVictory: handleVictory,
     onWordValidated: handleWordValidated,
     onWordInvalid: handleWordInvalid,
@@ -111,51 +140,67 @@ export default function App() {
   /* ---- Écran de chargement ---- */
   if (isLoading) {
     return (
-      <div className="app-wrapper">
-        <div className="loading-screen">
-          <div className="loading-spinner" />
-          <p>Chargement du dictionnaire…</p>
-        </div>
+      <div className="page-layout">
+        <aside className="sidebar sidebar--left" />
+        <main className="game-center">
+          <div className="loading-screen">
+            <div className="loading-spinner" />
+            <p>Chargement du dictionnaire…</p>
+          </div>
+        </main>
+        <aside className="sidebar sidebar--right" />
       </div>
     );
   }
 
   return (
-    <div className="app-wrapper">
-      <header className="app-header">
-        <h1>🚂 Train de Mots</h1>
-        <p>Forme des mots avec les lettres disponibles pour faire avancer le train !</p>
-      </header>
+    <div className="page-layout">
 
-      <HUD timeLeft={timeLeft} score={currentScore} combo={combo} />
+      {/* ── Sidebar gauche : mots courts (2-4 lettres) ── */}
+      <aside className="sidebar sidebar--left">
+        <p className="sidebar-label">mots courts</p>
+        <WordGrid targetWords={targetWords} foundWords={foundWords} side="left" />
+      </aside>
 
-      <div className="train-section">
-        <TrainScene position={position} velocity={velocity} />
-      </div>
+      {/* ── Zone centrale : jeu ── */}
+      <main className="game-center">
+        <header className="app-header">
+          <h1>🚂 Train de Mots</h1>
+          <p>Forme des mots avec les lettres disponibles pour faire avancer le train !</p>
+        </header>
 
-      <div className="progress-bar-wrapper">
-        <div className="progress-bar-fill" style={{ width: `${position}%` }} />
-      </div>
+        <HUD timeLeft={timeLeft} score={currentScore} combo={combo} />
 
-      <div className="game-section">
-        <div className="section-label">Tes lettres</div>
-        <LetterTiles letters={letters} />
+        <div className="train-section">
+          <TrainScene position={position} velocity={velocity} />
+        </div>
 
-        {/* Bouton Go (état waiting) ou saisie (état playing/fin) */}
-        {gameState === 'waiting' ? (
-          <button className="go-btn" onClick={handleStart}>
-            🚂 Lancer le train !
-          </button>
-        ) : (
-          <>
-            <div className="section-label">Ton mot</div>
-            <WordInput onSubmit={submitWord} disabled={gameState !== 'playing'} />
-          </>
-        )}
+        <div className="progress-bar-wrapper">
+          <div className="progress-bar-fill" style={{ width: `${position}%` }} />
+        </div>
 
-        <div className="section-label">Mots possibles</div>
-        <WordGrid targetWords={targetWords} foundWords={foundWords} />
-      </div>
+        <div className="game-section">
+          <div className="section-label">Tes lettres</div>
+          <LetterTiles letters={letters} />
+
+          {gameState === 'waiting' ? (
+            <button className="go-btn" onClick={handleStart}>
+              🚂 Lancer le train !
+            </button>
+          ) : (
+            <>
+              <div className="section-label">Ton mot</div>
+              <WordInput onSubmit={submitWord} disabled={gameState !== 'playing'} />
+            </>
+          )}
+        </div>
+      </main>
+
+      {/* ── Sidebar droite : mots longs (5+ lettres) ── */}
+      <aside className="sidebar sidebar--right">
+        <p className="sidebar-label">mots longs</p>
+        <WordGrid targetWords={targetWords} foundWords={foundWords} side="right" />
+      </aside>
 
       {(gameState === 'victory' || gameState === 'defeat') && (
         <EndScreen

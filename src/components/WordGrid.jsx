@@ -1,50 +1,56 @@
-export default function WordGrid({ targetWords, foundWords }) {
-  if (!targetWords || targetWords.length === 0) {
-    return (
-      <div className="word-grid word-grid--loading">
-        Calcul des mots possibles…
+function WordGroup({ len, words, foundWords }) {
+  const found = words.filter(w => foundWords && foundWords.has(w)).length;
+  return (
+    <div className="wg-group">
+      <span className="wg-len-label">
+        {len}L<span className="wg-count">{found}/{words.length}</span>
+      </span>
+      <div className="wg-row">
+        {words.map((word, wi) => {
+          const isFound = foundWords && foundWords.has(word);
+          return (
+            <div key={wi} className="wg-word">
+              {Array.from(word).map((letter, li) => (
+                <div key={li} className={`wg-sq${isFound ? ' wg-sq--found' : ''}`}>
+                  {isFound ? letter.toUpperCase() : ''}
+                </div>
+              ))}
+            </div>
+          );
+        })}
       </div>
-    );
+    </div>
+  );
+}
+
+/**
+ * side = 'left'  → longueurs ≤ 4 (mots courts, sidebar gauche)
+ * side = 'right' → longueurs ≥ 5 (mots longs, sidebar droite)
+ */
+export default function WordGrid({ targetWords, foundWords, side = 'all' }) {
+  if (!targetWords || targetWords.length === 0) {
+    return side !== 'right'
+      ? <p className="wg-empty">Calcul…</p>
+      : null;
   }
 
-  // Grouper tous les mots par longueur
   const byLength = {};
-  for (const word of targetWords) {
-    if (!byLength[word.length]) byLength[word.length] = [];
-    byLength[word.length].push(word);
+  for (const w of targetWords) {
+    if (!byLength[w.length]) byLength[w.length] = [];
+    byLength[w.length].push(w);
   }
-  const lengths = Object.keys(byLength).map(Number).sort((a, b) => a - b);
+  const all = Object.keys(byLength).map(Number).sort((a, b) => a - b);
+
+  const lengths =
+    side === 'left'  ? all.filter(l => l <= 4) :
+    side === 'right' ? all.filter(l => l >= 5) : all;
+
+  if (lengths.length === 0) return null;
 
   return (
-    <div className="word-grid">
-      {lengths.map((len) => (
-        <div key={len} className="wg-group">
-          <span className="wg-len-label">
-            {len} lettre{len > 1 ? 's' : ''}
-            <span className="wg-count">
-              {foundWords
-                ? `${byLength[len].filter(w => foundWords.has(w)).length}/${byLength[len].length}`
-                : `0/${byLength[len].length}`}
-            </span>
-          </span>
-          <div className="wg-row">
-            {byLength[len].map((word, wi) => {
-              const found = foundWords && foundWords.has(word);
-              return (
-                <div key={wi} className="wg-word">
-                  {Array.from(word).map((letter, li) => (
-                    <div
-                      key={li}
-                      className={`wg-sq${found ? ' wg-sq--found' : ''}`}
-                    >
-                      {found ? letter.toUpperCase() : ''}
-                    </div>
-                  ))}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+    <div className="wg-column">
+      {lengths.map(len => (
+        <WordGroup key={len} len={len} words={byLength[len]} foundWords={foundWords} />
       ))}
     </div>
   );
